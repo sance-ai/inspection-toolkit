@@ -21,8 +21,15 @@ Call `platform_overview` once before anything else. It returns the entity map, t
 symptom→area investigation guide, and the live catalogs of inspection areas and doc
 topics. Do not guess area or topic names — read them from there.
 
-Find ids with `product_overview(product_id)` — agents, channels, campaigns with names
-and statuses. Users usually know their product id from the dashboard URL.
+**Resolving ids** — the platform has thousands of products, so:
+
+- Given an agent, dialogue or lead id ("what's up with agent 144") →
+  `locate_entity(agent_id=144)` — ONE call returns the owning product and basics.
+  NEVER search for an entity by iterating `product_overview` across products.
+- Given a product id (users read it from the dashboard URL) →
+  `product_overview(product_id)` lists its agents, channels and campaigns.
+- Given only a name ("the Acme bot") → ask the user for the product id or a dashboard
+  URL; do not guess.
 
 ## Choosing the workflow
 

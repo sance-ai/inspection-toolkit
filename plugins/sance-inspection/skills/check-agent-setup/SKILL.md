@@ -14,8 +14,9 @@ silent gate failing early in a chain; the facts are built to expose exactly thos
 1. `platform_overview` → read the `investigation_guide`: it maps symptoms to areas.
    Trust it for routing — it is maintained with the backend.
 2. `product_overview(product_id)` → the agent, its channels (active? inbound?),
-   campaigns and their statuses. An agent with zero linked channels answers nothing,
-   ever — check this before anything deeper.
+   campaigns and their statuses (product id unknown? `locate_entity(agent_id=...)`
+   first — never iterate products). An agent with zero linked channels answers
+   nothing, ever — check this before anything deeper.
 
 ## Phase 2 — sweep the integration areas
 

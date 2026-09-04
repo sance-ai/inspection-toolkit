@@ -6,7 +6,8 @@ description: Use when investigating a specific Sance dialogue — why the bot re
 # Debug one dialogue
 
 Goal: reconstruct what actually happened in one dialogue and name the cause with
-evidence. The dialogue id comes from the dashboard; the product id from its URL.
+evidence. The dialogue id comes from the dashboard; if the product id is unknown,
+resolve it with `locate_entity(dialogue_id=...)` — one call, never a product search.
 
 ## The method: timeline first, prompts last
 

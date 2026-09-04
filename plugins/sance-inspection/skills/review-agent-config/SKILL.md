@@ -12,8 +12,9 @@ spot. Work through the phases in order — later phases need the earlier context
 ## Phase 1 — orient
 
 1. `platform_overview` (once per session).
-2. `product_overview(product_id)` → confirm which agent is meant, note its channels
-   and campaigns.
+2. Only the agent id known? → `locate_entity(agent_id=...)` resolves the product in
+   one call (never iterate products). Then `product_overview(product_id)` → confirm
+   which agent is meant, note its channels and campaigns.
 
 ## Phase 2 — collect the five core areas
 
