@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "sance-ai": {
+      "type": "http",
+      "url": "https://mcp-inspection.ru.sance.ai/mcp"
+    }
+  }
+}

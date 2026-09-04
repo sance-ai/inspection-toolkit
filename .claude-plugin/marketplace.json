@@ -1,0 +1,13 @@
+{
+  "name": "sance",
+  "owner": {
+    "name": "Sance AI"
+  },
+  "plugins": [
+    {
+      "name": "sance-inspection",
+      "source": "./plugins/sance-inspection",
+      "description": "Sance AI platform inspection: MCP server connection + CSM skills for reviewing agent configuration and debugging dialogues"
+    }
+  ]
+}
