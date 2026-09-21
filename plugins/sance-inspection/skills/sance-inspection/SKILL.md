@@ -71,9 +71,35 @@ silently for ~30 days.
 4. Never `claude mcp remove sance-ai` to fix auth — the registration comes from this
    plugin, not from manual config; removing changes nothing about tokens.
 
+## Writing prompts — the two mutating tools
+
+`create_prompt_version` (a new version of an existing prompt) and `create_prompt` (a
+brand-new prompt row — meant for playbooks) are the only tools that change anything.
+Rules, no exceptions:
+
+1. Read the `prompt-authoring` topic (and `playbooks` for playbooks) via `topic_doc`
+   BEFORE drafting. They define the structure, the cache-breakpoint rule and the
+   capability checks. The "logic in English, surface in Russian" idea in them is a
+   suggestion with too little data behind it — never impose it; keep the prompt's
+   existing language unless the user asks to switch.
+2. Show the user the COMPLETE new text (not a summary, not a diff alone) and get an
+   explicit "yes, create it" before calling. The tool call itself will also prompt
+   the user for permission — that is intended, never try to avoid it.
+3. `create_prompt_version`: leave `enable` false unless the user said to make it
+   live. A disabled version changes nothing until enabled in the dashboard.
+4. `create_prompt`: its first version is enabled by the platform. For a playbook that
+   means "offered to new dialogues now". For any other type it would SHADOW the
+   agent's live prompt instantly — the tool refuses unless `replace_live=true`; never
+   pass that on your own initiative; prefer a new version of the existing prompt.
+5. Content-check findings: relay verbatim. Critical (broken Jinja) must be fixed.
+   Severe/warning may be acknowledged via `acknowledged_checks` only after the user
+   reads them and agrees.
+6. Workflows: `/rewrite-prompt` for one prompt, `/decompose-into-playbooks` for
+   turning a monolith into a core + playbooks.
+
 ## Boundaries
 
-- Everything is read-only; to change configuration, use the dashboard.
+- Everything else is read-only; to change any other configuration, use the dashboard.
 - Do not state a cause a tool result does not support — the debug bundle's legend
   lists what is NOT persisted; treat those as unknowable, say so explicitly.
 - Anything involving money, deletion, or client-visible changes → hand off to a human.

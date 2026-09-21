@@ -28,7 +28,18 @@ silently, no secrets to store.
   - `debug-dialogue` — "why did the bot do that" investigation methodology;
   - `check-agent-setup` — integration/readiness sweep methodology.
 
-Everything is read-only; configuration changes happen in the dashboard.
+  - `rewrite-prompt` — draft a new prompt version, get the user's explicit approval of
+    the exact text, save it (disabled by default);
+  - `decompose-into-playbooks` — split a monolith prompt into a core + playbooks and
+    create them, one approval per item.
+
+Authoring knowledge (prompt anatomy, the English/Russian split, playbook rules) is
+served by the MCP as the `prompt-authoring` and `playbooks` topics — the skills tell
+Claude to read them first.
+
+Everything is read-only except `create_prompt_version` and `create_prompt`, which
+Claude Code always asks permission for before calling; all other configuration
+changes happen in the dashboard.
 
 ## Updating
 
