@@ -1,7 +1,7 @@
 {
   "name": "sance-inspection",
   "description": "Sance AI platform inspection for CSMs: read-only MCP tools over agent configuration and dialogue debugging, plus the investigation methodologies",
-  "version": "0.2.1",
+  "version": "0.4.0",
   "author": {
     "name": "Sance AI"
   }

@@ -13,7 +13,10 @@ the workflow two production pilots used; the rules come from the `playbooks` and
 ## Phase 1 — read
 
 1. `locate_entity` / `product_overview` to fix the agent; `inspect_agent(prompts)` to
-   find the live main prompt; `prompt_text` for the full monolith.
+   find the live main prompt; `export_prompt` + `curl -sf -o .sance/<suggested_path>`
+   to get the monolith as a FILE (one-shot link; `.sance/` in `.gitignore`). Work on
+   it section by section using the returned outline — never pull 100k characters
+   into the conversation at once.
 2. `inspect_agent(agent_config)`, `inspect_agent(dialogue_tree)`,
    `inspect_agent(knowledge_base)`: what the agent can actually do, the stage names
    the core must use, what knowledge already lives in RAG (never becomes a playbook).
@@ -59,16 +62,23 @@ playbooks; two or three fat ones is a sign the sort is wrong.
 
 ## Phase 4 — save, in this exact order, one approval per item
 
-1. Stage playbooks first, in funnel order, then situational ones — `create_prompt`
-   with `type="playbook"`, `name`, `description`, `content`, `crm_fields_conditions`.
-   Ids ascend in creation order and the enabled-playbooks block is sorted by id, so
-   this order makes the common funnel a shared cache prefix. Show each playbook in
-   full and get a yes before each call.
-2. The core LAST, and as a **new version of the existing main prompt**
-   (`create_prompt_version`, `enable=false`), never as a new prompt row: a new
-   `type="prompt"` row would go live the instant it exists, before the user has
-   reviewed anything. The user enables the version in the dashboard when ready —
-   or asks you to pass `enable=true` explicitly.
+Write every piece as a file first: `.sance/<agent>/core.md`, `.sance/<agent>/playbooks/<name>.md`,
+plus a small catalog (name, description, conditions per file). The user reviews files,
+not chat walls. Each save is: `prepare_prompt_upload` → `curl -sf -T <file> "<url>"`
+(returns the sha256) → the write tool with `upload_id` + `content_sha256`.
+
+1. Stage playbooks first, in funnel order, then situational ones —
+   `prepare_prompt_upload(product_id, agent_id=…)`, upload, then `create_prompt` with
+   `type="playbook"`, `name`, `description`, `crm_fields_conditions`, `upload_id`,
+   `content_sha256`. Ids ascend in creation order and the enabled-playbooks block is
+   sorted by id, so this order makes the common funnel a shared cache prefix. Get a
+   yes on each file before its call.
+2. The core LAST, and as a **new version of the existing main prompt** —
+   `prepare_prompt_upload(product_id, prompt_id=<live main prompt>)`, upload, then
+   `create_prompt_version(…, upload_id, content_sha256, enable=false)` — never as a
+   new prompt row: a new `type="prompt"` row would go live the instant it exists,
+   before the user has reviewed anything. The user enables the version in the
+   dashboard when ready — or asks you to pass `enable=true` explicitly.
 3. Relay every content-check finding verbatim; `vars_in_playbook` means a variable
    leaked into a playbook — fix, don't acknowledge.
 

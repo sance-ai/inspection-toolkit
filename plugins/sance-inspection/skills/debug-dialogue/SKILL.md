@@ -11,19 +11,27 @@ resolve it with `locate_entity(dialogue_id=...)` — one call, never a product s
 
 ## The method: timeline first, prompts last
 
-1. **First fetch — cheap and wide**: `debug_dialogue` with
-   `include_instructions=false` and `sections=["lead_events", "escalation"]`.
-   Read the embedded `legend` — it defines every event type, the link fields, and
-   (critically) `not_persisted`: the list of things that are unknowable after the
-   fact. Never assert a cause from that list.
+1. **First fetch — as a file**: `export_dialogue(product_id, dialogue_id)` (all
+   sections, `include_instructions=false`) returns a one-shot link;
+   `curl -sf -o .sance/<suggested_path> "<url>"` (`.sance/` in `.gitignore`; if curl
+   fails, ask for a new link). Then query the file with `jq` instead of reading it
+   whole — e.g. `jq '.legend.not_persisted'`, `jq '.lead_events[] | {created_at,
+   scope, t: .event.event_type, d: .event.event_data}'`, `jq '.escalation'`,
+   `jq '[.events[] | {event, at, llm_type, side, id}]'`. Read the `legend` first — it
+   defines every event type, the link fields, and (critically) `not_persisted`: the
+   things unknowable after the fact. Never assert a cause from that list.
+   (No shell? Fall back to `debug_dialogue` with a narrow `sections` list, e.g.
+   `["lead_events", "escalation"]`.)
 2. **Build the timeline**: lead_events give you mutes (with reasons), stage changes,
    tree moves, ping skips, campaign assignment. Each event has a `scope` — events
    from sibling dialogues of the same lead often explain "mysterious" state.
-3. **Narrow to the suspicious turn**, then fetch what that question needs:
+3. **Narrow to the suspicious turn**, then read what that question needs — from the
+   file with `jq` (the sections below are top-level keys), or via a fresh export with
+   `export_llm_message_instructions` (one system prompt, as a file) when you need a prompt:
 
 | Question | Sections / tools |
 |---|---|
-| why did it SAY that | `events` (the llm_run for the turn), then `llm_message_instructions` for that one run — the historical ground truth of what the model saw |
+| why did it SAY that | `events` (the llm_run for the turn), then `export_llm_message_instructions` for that one call (download, grep the relevant part) — the historical ground truth of what the model saw |
 | why no escalation | `escalation`: gate_decisions rows (mode/label/armed/reason). No rows + mode=off means the gate never ran. Budget exhaustion is never persisted — treat as possible, not provable |
 | why no ping / follow-up | `pings`: the `eligibility_replay` evaluates every production clause against CURRENT state and names `first_failing_clause`. Runtime-only gates (debounce, chain timing, throttling) are listed in the legend as non-replayable |
 | why this tree node | `dialogue_tree`: `movements` are the historical record; `arbiter_turns` carry the per-node condition verdicts and the arbiter's reason, recovered from stored LLM runs |

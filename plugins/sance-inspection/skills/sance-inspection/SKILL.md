@@ -41,9 +41,23 @@ topics. Do not guess area or topic names — read them from there.
 
 ## Tool etiquette (context economy)
 
-- `debug_dialogue`: always start with `include_instructions=false` and a narrow
-  `sections` list — a full bundle with prompts can be enormous. Fetch a single turn's
-  system prompt with `llm_message_instructions` when you actually need it.
+- **Big payloads travel as files.** `export_dialogue` and `export_prompt` return a
+  one-shot download link instead of the payload; `curl -sf -o .sance/<path> "<url>"`,
+  then read selectively (`jq`, `grep`, the prompt outline's offsets). Links work once
+  and expire in ~10 minutes — on failure just ask the tool again. Keep `.sance/` in
+  `.gitignore`. Sending an edited prompt back works the same way in reverse:
+  `prepare_prompt_upload` → `curl -sf -T <file> "<url>"` → write tool with
+  `upload_id` + `content_sha256`.
+- To skip the permission prompt on every download, the user can allow
+  `Bash(curl -sf *mcp-inspection.ru.sance.ai*)` in their Claude Code
+  settings — suggest it, never edit their settings yourself.
+- Inline fallbacks (`debug_dialogue` with a narrow `sections` list, `prompt_text`)
+  are for small payloads or clients without a shell. A single call's system prompt
+  is often tens of thousands of tokens: fetch it with `export_llm_message_instructions`
+  (a file), not `llm_message_instructions` (inline), unless you have no shell.
+- Saving from an upload is idempotent: repeating a write with the same `upload_id`
+  returns the original result (`"replayed": true`) and writes nothing — safe to retry
+  after a timeout. A new edit needs a new `prepare_prompt_upload`.
 - `inspect_agent`: one area at a time; only the areas the question needs.
 - Platform docs: fetch via `topic_doc` on demand — do not ask the user to paste docs.
 
@@ -82,9 +96,11 @@ Rules, no exceptions:
    capability checks. The "logic in English, surface in Russian" idea in them is a
    suggestion with too little data behind it — never impose it; keep the prompt's
    existing language unless the user asks to switch.
-2. Show the user the COMPLETE new text (not a summary, not a diff alone) and get an
-   explicit "yes, create it" before calling. The tool call itself will also prompt
-   the user for permission — that is intended, never try to avoid it.
+2. The user must have reviewed the COMPLETE new text — as a local file they open
+   (the default for anything big) or in chat for short prompts — and said an explicit
+   "yes, create it" before you call. Saving from a file goes by `upload_id` +
+   `content_sha256`, which pins the exact bytes they reviewed. The tool call itself
+   will also prompt the user for permission — intended, never try to avoid it.
 3. `create_prompt_version`: leave `enable` false unless the user said to make it
    live. A disabled version changes nothing until enabled in the dashboard.
 4. `create_prompt`: its first version is enabled by the platform. For a playbook that
