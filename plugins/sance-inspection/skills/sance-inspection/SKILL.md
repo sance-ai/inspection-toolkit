@@ -41,6 +41,11 @@ topics. Do not guess area or topic names — read them from there.
 
 ## Tool etiquette (context economy)
 
+- **Knowledge base is readable, not writable.** `export_knowledge_document` downloads a
+  document as uploaded (`format="original"`: PDF/XLSX/MD… — use your own file-reading
+  tools on it), as the extracted text the bot's knowledge is built from
+  (`format="text"`), or as its retrievable units (`format="units"`). Find document ids
+  via `inspect_agent` area `knowledge_base`. Changes happen in the dashboard.
 - **Big payloads travel as files.** `export_dialogue` and `export_prompt` return a
   one-shot download link instead of the payload; `curl -sf -o .sance/<path> "<url>"`,
   then read selectively (`jq`, `grep`, the prompt outline's offsets). Links work once

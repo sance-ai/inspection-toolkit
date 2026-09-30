@@ -37,6 +37,7 @@ resolve it with `locate_entity(dialogue_id=...)` — one call, never a product s
 | why this tree node | `dialogue_tree`: `movements` are the historical record; `arbiter_turns` carry the per-node condition verdicts and the arbiter's reason, recovered from stored LLM runs |
 | what data did extraction write | `lead_snapshot`: CRM field values with per-row source/actor provenance, stage movements, refusal assignments (these store reason + confidence) |
 | did retrieval fire, with what | `rag`: per-run gate decision, rewritten query, selected units |
+| why didn't the bot know X | `rag` for that turn: was retrieval gated off, what was the rewritten query, which unit ids were selected. Then find the document that SHOULD have answered (`inspect_agent` area `knowledge_base` lists documents) and `export_knowledge_document(format="units")`: grep for the fact in `content`, and compare the unit's `search_text` with the rewritten query — a fact present in `content` but phrased very differently in `search_text` is a matching problem; a fact absent from every unit was never in the knowledge base (or was lost in extraction — compare with `format="original"`) |
 | what WOULD the prompt be now | `prompt_dry_run` — current config only; never evidence about the past |
 
 4. **Compare past vs present deliberately.** `instructions` from an llm_run = what

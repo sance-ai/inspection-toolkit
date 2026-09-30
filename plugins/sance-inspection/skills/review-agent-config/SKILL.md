@@ -47,6 +47,13 @@ Structural (the facts usually flag these directly):
 
 Semantic (read the texts, think):
 
+- Prompt vs knowledge base: export the documents that cover what the prompt talks
+  about (`export_knowledge_document`, `format="text"` — the text the bot's knowledge is
+  built from) and check for contradictions (prices, program names, deadlines,
+  conditions stated differently in the two), and for knowledge pasted into the prompt
+  that belongs in the knowledge base (price tables, FAQ answers, program lists). The
+  knowledge base is read-only here — report, the fix happens in the dashboard.
+
 - The prompt instructs behavior the config disables: booking meetings with
   `calendar_enabled=false`, escalation phrasing with no human-clarification config,
   sending files not in `files_to_send`, "consult document X" where no such
