@@ -56,6 +56,14 @@ resolve it with `locate_entity(dialogue_id=...)` — one call, never a product s
   the replay runs against current state; combine with lead_events for history.
 - One section erroring (`section_error`) degrades that section only — report the
   gap, use the rest.
+- A `pii` block right after `legend` means the company masks personal data and the
+  export is pseudonymised: names, phones, e-mails and ids are consistent stand-ins
+  (one person keeps one fake name across the bundle, the system prompts and later
+  exports). Follow people by them, never present them as the real customer, and never
+  report a "wrong name" as a bug. `[chat_id]`, `[contact]` and `[name]` are
+  placeholders. The manager-approved answers of such a company export as `text` or
+  `units` only. "Masking service unavailable" means retry later — there is no
+  unmasked fallback.
 
 ## Report format
 

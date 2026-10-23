@@ -31,15 +31,20 @@ silently, no secrets to store.
   - `rewrite-prompt` — draft a new prompt version, get the user's explicit approval of
     the exact text, save it (disabled by default);
   - `decompose-into-playbooks` — split a monolith prompt into a core + playbooks and
-    create them, one approval per item.
+    create them, one approval per item;
+  - `test-with-synthetic-customers` — write simulated customers (by hand or from real
+    dialogues), run them against the live agent or a draft version, triage the results
+    and report findings.
 
 Authoring knowledge (prompt anatomy, the English/Russian split, playbook rules) is
-served by the MCP as the `prompt-authoring` and `playbooks` topics — the skills tell
-Claude to read them first.
+served by the MCP as the `prompt-authoring` and `playbooks` topics, and how
+simulations work as the `simulations` topic. The skills tell Claude to read them first.
 
-Everything is read-only except `create_prompt_version` and `create_prompt`, which
-Claude Code always asks permission for before calling; all other configuration
-changes happen in the dashboard.
+Everything is read-only except `create_prompt_version` and `create_prompt` (prompts)
+and the synthetic-customer tools (`create_sim_personas`, `update_sim_persona`,
+`draft_sim_persona`, `run_sim_personas` — test data and token spend). Claude Code
+always asks permission before calling them; all other configuration changes happen in
+the dashboard.
 
 ## Updating
 
