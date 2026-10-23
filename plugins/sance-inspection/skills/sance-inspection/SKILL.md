@@ -9,8 +9,10 @@ Sance AI builds LLM sales/support agents for businesses. Agents are configured w
 prompts, a dialogue state tree, scheduled follow-ups (pings), prepared messages, CRM
 integrations, knowledge bases and channels — and misconfigurations between those parts
 are the most common cause of "the bot behaves wrong". The `sance-ai` MCP server gives
-read-only access to all of it: effective configuration with curated documentation and
-derived facts, plus full execution traces of any dialogue. It cannot change anything.
+read access to all of it: effective configuration with curated documentation and
+derived facts, plus full execution traces of any dialogue. It changes only two things:
+prompts (new versions, new playbooks) and synthetic-customer tests (personas and runs).
+Both need the user's go-ahead.
 
 **All judgment is yours.** The server returns facts and docs, never verdicts — that is
 by design. Numbers must come from tool results, never from memory.
@@ -38,6 +40,7 @@ topics. Do not guess area or topic names — read them from there.
 | "Is this agent configured coherently? Does it match what the client asked for?" | `review-agent-config` |
 | "Why did the bot say/do that in THIS dialogue? Why no escalation / no ping / wrong stage?" | `debug-dialogue` |
 | "Nothing works / channels dead / CRM not syncing / leads not importing" | `check-agent-setup` |
+| "Test the agent with simulated customers / did this prompt change break anything / compare the draft with the live version / replay these real dialogues" | `test-with-synthetic-customers` |
 
 ## Tool etiquette (context economy)
 
@@ -93,8 +96,11 @@ silently for ~30 days.
 ## Writing prompts — the two mutating tools
 
 `create_prompt_version` (a new version of an existing prompt) and `create_prompt` (a
-brand-new prompt row — meant for playbooks) are the only tools that change anything.
-Rules, no exceptions:
+brand-new prompt row — meant for playbooks) are the only tools that change the agent.
+The synthetic-customer tools (`create_sim_personas`, `update_sim_persona`,
+`draft_sim_persona`, `run_sim_personas`) change only test data, but spend the company's
+tokens: they follow the `test-with-synthetic-customers` workflow. Prompt rules, no
+exceptions:
 
 1. Read the `prompt-authoring` topic (and `playbooks` for playbooks) via `topic_doc`
    BEFORE drafting. They define the structure, the cache-breakpoint rule and the
