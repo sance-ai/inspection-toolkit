@@ -32,6 +32,14 @@ topics. Do not guess area or topic names — read them from there.
   `product_overview(product_id)` lists its agents, channels and campaigns.
 - Given only a name ("the Acme bot") → ask the user for the product id or a dashboard
   URL; do not guess.
+- Given a question about MANY dialogues ("find ones stuck on node X last week", "muted
+  dialogues with refusal reason Y", research across a sample) → `find_dialogues(product_id,
+  …filters)`: the dashboard's dialogue list with its filters, returning dialogue ids
+  plus non-personal facts (stage, node, mute, A/B bucket, ticket, counts) — never names,
+  contacts or texts. Get filter ids from `dialogue_filter_options`. Narrow by agent and
+  dates; `reply_type` defaults to dialogues where the customer replied (pass `"all"`
+  for unanswered outreach); synthetic customers are excluded unless
+  `include_simulated=true`. Then export only the dialogues worth reading.
 
 ## Choosing the workflow
 
