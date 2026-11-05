@@ -40,6 +40,37 @@ topics. Do not guess area or topic names — read them from there.
   dates; `reply_type` defaults to dialogues where the customer replied (pass `"all"`
   for unanswered outreach); synthetic customers are excluded unless
   `include_simulated=true`. Then export only the dialogues worth reading.
+- Given a question about where some TEXT is used ("which prompts mention the client's
+  job title", "where do we promise a discount") → `search_agent_text`, see Completeness.
+
+## Completeness — every item, and say what you checked
+
+A question about "which / where / all / is X used anywhere" is about EVERY item, never a
+sample. Answering from part of the data is acceptable only when you say so first.
+
+- **Find text with one call.** `search_agent_text(product_id, query)` scans every prompt
+  of the product (live versions: enabled + pinned by active A/B buckets; `versions="all"`
+  for history), every playbook catalog line, every prepared message and every
+  knowledge-base unit. Never read prompts one by one to find a word. Quote its `summary`
+  in your answer: it states what was searched and what was not (prompts without an
+  enabled version, documents with no units yet). Search a stem without `whole_word`
+  («должност» finds «должность», «должности»); a CRM field in a template is found by its
+  key as written («Должность» in `{{ crm_fields['Должность'] }}`). Results are paged:
+  if `matched_items` is larger than what you got, fetch the next `page`.
+- **Read many prompts with one download.** `export_prompts(product_id)` returns every live
+  prompt as `prompt_<id>_v<version>.md` in one zip, plus a manifest (version, sha256,
+  whether it runs — a shadowed prompt does not).
+- **Local copies are not the truth.** A file in `.sance/` may be days old. Before you
+  answer from it, check it against the `export_prompts` manifest (it comes back inline
+  in the tool result, no download needed): a file whose name or sha256 is not in the
+  manifest is not the live text — export it again.
+- **Count before you conclude.** Before the final answer, compare what you checked with
+  the inventory (the search `coverage`, or `inspect_agent` area `prompts`). If anything
+  was left out — a document not processed yet, an agent you skipped, a source the search
+  does not cover (tree-node texts, ping texts, outreach templates) — say so at the START
+  of the answer, not when asked.
+- **Never trade coverage for economy.** Save context with files, `grep` and `jq` — never
+  by looking at less than the question asks.
 
 ## Choosing the workflow
 
@@ -50,7 +81,7 @@ topics. Do not guess area or topic names — read them from there.
 | "Nothing works / channels dead / CRM not syncing / leads not importing" | `check-agent-setup` |
 | "Test the agent with simulated customers / did this prompt change break anything / compare the draft with the live version / replay these real dialogues" | `test-with-synthetic-customers` |
 
-## Tool etiquette (context economy)
+## Tool etiquette (save context, never coverage)
 
 - **Knowledge base is readable, not writable.** `export_knowledge_document` downloads a
   document as uploaded (`format="original"`: PDF/XLSX/MD… — use your own file-reading
@@ -74,7 +105,8 @@ topics. Do not guess area or topic names — read them from there.
 - Saving from an upload is idempotent: repeating a write with the same `upload_id`
   returns the original result (`"replayed": true`) and writes nothing — safe to retry
   after a timeout. A new edit needs a new `prepare_prompt_upload`.
-- `inspect_agent`: one area at a time; only the areas the question needs.
+- `inspect_agent`: one area at a time; only the areas the question needs — and all of
+  them when the question is about all of something.
 - Platform docs: fetch via `topic_doc` on demand — do not ask the user to paste docs.
 
 ## Install / onboarding (for helping a colleague)
