@@ -27,7 +27,10 @@ make sure `.sance/` is listed in `.gitignore` (add it if not).
    sha256 and an outline (headings with character offsets). Then:
    `curl -sf -o .sance/<suggested_path> "<url>"`. The link works once and expires in
    minutes — if curl fails, call export_prompt again. Read the file by section using
-   the outline; don't load a huge prompt whole unless you need all of it.
+   the outline; don't load a huge prompt whole unless you need all of it. Always edit a
+   fresh export: a copy already in `.sance/` may be an older version — reuse it only
+   if its sha256 equals the one export_prompt (or the `export_prompts` manifest) just
+   returned.
 4. **Understand the constraints**: what the agent can actually do (`agent_config`
    area: tools, calendar, files, clarification), node names the prompt refers to
    (`dialogue_tree` area), and the client's requirements if the user gave them. A
