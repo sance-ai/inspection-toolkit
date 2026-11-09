@@ -10,9 +10,10 @@ prompts, a dialogue state tree, scheduled follow-ups (pings), prepared messages,
 integrations, knowledge bases and channels — and misconfigurations between those parts
 are the most common cause of "the bot behaves wrong". The `sance-ai` MCP server gives
 read access to all of it: effective configuration with curated documentation and
-derived facts, plus full execution traces of any dialogue. It changes only two things:
-prompts (new versions, new playbooks) and synthetic-customer tests (personas and runs).
-Both need the user's go-ahead.
+derived facts, plus full execution traces of any dialogue. It changes only three things:
+prompts (new versions, new playbooks), synthetic-customer tests (personas and runs) and client
+feedback in the markup interface (replies to the client's comments, kanban card moves, resolving
+a remark — all visible to the client). All of them need the user's go-ahead.
 
 **All judgment is yours.** The server returns facts and docs, never verdicts — that is
 by design. Numbers must come from tool results, never from memory.
@@ -80,9 +81,13 @@ sample. Answering from part of the data is acceptable only when you say so first
 | "Why did the bot say/do that in THIS dialogue? Why no escalation / no ping / wrong stage?" | `debug-dialogue` |
 | "Nothing works / channels dead / CRM not syncing / leads not importing" | `check-agent-setup` |
 | "Test the agent with simulated customers / did this prompt change break anything / compare the draft with the live version / replay these real dialogues" | `test-with-synthetic-customers` |
+| "What did the client complain about / work through the feedback queue / answer the client's comments" | `work-client-feedback` |
 
 ## Tool etiquette (save context, never coverage)
 
+- Client feedback: `list_feedback` is the queue (open comments, board order, paged); a dialogue's
+  comments and ratings come with `debug_dialogue` / `export_dialogue` section `feedback`. Read
+  `topic_doc("feedback")` before the first write.
 - **Knowledge base is readable, not writable.** `export_knowledge_document` downloads a
   document as uploaded (`format="original"`: PDF/XLSX/MD… — use your own file-reading
   tools on it), as the extracted text the bot's knowledge is built from
@@ -139,8 +144,14 @@ silently for ~30 days.
 brand-new prompt row — meant for playbooks) are the only tools that change the agent.
 The synthetic-customer tools (`create_sim_personas`, `update_sim_persona`,
 `draft_sim_persona`, `run_sim_personas`) change only test data, but spend the company's
-tokens: they follow the `test-with-synthetic-customers` workflow. Prompt rules, no
-exceptions:
+tokens: they follow the `test-with-synthetic-customers` workflow.
+
+The client-feedback tools (`reply_feedback_comment`, `move_feedback_card`,
+`set_feedback_comment_state`) change nothing in the agent, but the CLIENT sees them in the
+markup interface: they follow the `work-client-feedback` workflow, and each needs the user's
+explicit go-ahead on the exact reply text or change.
+
+Prompt rules, no exceptions:
 
 1. Read the `prompt-authoring` topic (and `playbooks` for playbooks) via `topic_doc`
    BEFORE drafting. They define the structure, the cache-breakpoint rule and the
@@ -167,6 +178,9 @@ exceptions:
 ## Boundaries
 
 - Everything else is read-only; to change any other configuration, use the dashboard.
+  Client feedback writes are the one client-visible exception — see `work-client-feedback`.
 - Do not state a cause a tool result does not support — the debug bundle's legend
   lists what is NOT persisted; treat those as unknowable, say so explicitly.
-- Anything involving money, deletion, or client-visible changes → hand off to a human.
+- Anything involving money or deletion → hand off to a human. Client-visible feedback changes
+  happen only through the client-feedback tools, only with the user's explicit approval of the
+  exact text or change — never on your own initiative.
