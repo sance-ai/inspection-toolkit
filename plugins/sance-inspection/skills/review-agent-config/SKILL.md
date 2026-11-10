@@ -38,8 +38,9 @@ Structural (the facts usually flag these directly):
   sources pointing at missing prepared messages/files, prompts with no enabled version.
 - Shadowed prompts: a newer prompt of the same type/lang/modality silently wins —
   is the one the client edits the one that actually runs?
-- Unreachable tree nodes (no working conditions, no root), nodes without
-  `llm_description` (the arbiter can't reason about them).
+- Unreachable tree nodes (no working conditions, no root). A node is offered to the
+  decision model as its title plus its conditions in full; its canvas position plays
+  no part.
 - Template variables used in prepared messages/prompts that don't exist among the
   lead CRM fields (renders as a hole, no error).
 - Ping steps whose timing or `dialogue_init_msg_mode` can never fire for this
@@ -60,8 +61,8 @@ Semantic (read the texts, think):
   knowledge/tooling exists. A prompt cannot "go to another prompt" — any such
   instruction is dead text.
 - Tree states that overlap semantically — two nodes whose conditions both match the
-  same user intent; the arbiter will pick inconsistently (canvas proximity is a real
-  tie-breaker input).
+  same user intent. The candidates compete as options of one choice, so the decision
+  model splits the probability between the two and picks inconsistently.
 - Double-messaging: a ping and a tree action (or stage-triggered message) covering
   the same trigger window.
 - Stage names in prompt text diverging from the actual platform/CRM stage mapping in
